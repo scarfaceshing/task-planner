@@ -1,5 +1,11 @@
 <template>
-  <div class="space-y-5" @dragenter.prevent @dragover.prevent>
+  <div
+    class="space-y-5"
+    @dragenter.prevent
+    @dragover.prevent
+    ref="ignoreRef"
+    v-on-click-outside="onClickOutsideHandler"
+  >
     <div
       class="bg-white h-100 w-full p-3 pl-4 shadow-gray-500/25 shadow-md rounded-sm flex justify-start space-x-3"
       v-for="(task, index) in data"
@@ -28,14 +34,14 @@
       </div>
       <div class="flex-initial">
         <div class="flex justify-end space-x-2">
-          <span @click="selectUser(task)">
+          <span @click="selectUser(index)">
             <img
-              v-if="task.assignee.avatar"
               class="w-4 h-4 rounded-full"
-              :src="task.assignee.avatar"
+              :src="task.assignee.avatar || '/image/noimage.png'"
               alt="Rounded avatar"
             />
           </span>
+          <SelectUsers ref="user" />
           <span
             :class="{ 'i-mdi-star-outline': !task.is_important, 'i-mdi-star text-yellow-500': task.is_important }"
             class="text-gray-400 hover:text-yellow-500"
@@ -50,10 +56,14 @@
 
 <script setup>
 import { ref } from 'vue'
+import { vOnClickOutside } from '@vueuse/components'
 const props = defineProps(['data'])
 const emit = defineEmits(['removeTask', 'markImportant', 'markDone', 'sortValue', 'selectUser'])
 
 const task = ref('')
+const user = ref([])
+const ignoreElRef = ref()
+
 let dragTask = {}
 let dropTask = {}
 
@@ -75,6 +85,14 @@ function startDrag(event, task) {
   event.dataTransfer.dropEffect = 'move'
   event.dataTransfer.effectAllowed = 'move'
   dragTask = task
+
+  let element = user.value
+
+  element.map((i) => {
+    if (i.$el.classList.contains('inline')) {
+      i.$el.classList.add('hidden')
+    }
+  })
 }
 
 function onDrop(event, task) {
@@ -82,9 +100,40 @@ function onDrop(event, task) {
   emit('sortValue', [dragTask, dropTask])
 }
 
-function selectUser(task) {
-  emit('selectUser', task)
+function selectUser(index) {
+  let element = user.value
+
+  element.map((i) => {
+    if (i.$el.classList.contains('inline')) {
+      i.$el.classList.add('hidden')
+    }
+  })
+
+  element = element[index].$el.classList
+
+  if (element.contains('hidden')) {
+    element.remove('hidden')
+    element.add('inline')
+  } else {
+    element.remove('inline')
+    element.add('hidden')
+  }
+
+  console.log(index)
 }
+
+const onClickOutsideHandler = [
+  (ev) => {
+    let element = user.value
+
+    element.map((i) => {
+      if (i.$el.classList.contains('inline')) {
+        i.$el.classList.add('hidden')
+      }
+    })
+  },
+  { ignore: [ignoreElRef] }
+]
 </script>
 
 <style></style>

@@ -6,5 +6,6 @@ export const useTasksStore = defineStore('tasksStore', () => {
   function loadTasks(tasks: any) {
     stateTasksStore.value = tasks
   }
+
   return { loadTasks, stateTasksStore }
 })

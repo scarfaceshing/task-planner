@@ -133,8 +133,8 @@ async function sortValue(data) {
   filter(filterButton.value)
 }
 
-function selectUser(task) {
-  console.log(task)
+function selectUser(index) {
+  console.log(index)
 }
 
 watch(search, async (param) => {
