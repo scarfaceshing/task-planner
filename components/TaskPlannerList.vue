@@ -30,7 +30,9 @@
         />
       </div>
       <div class="flex-initial w-full">
-        <span :class="{ 'line-through': task.is_done }" class="text-gray-600 text-sm break-all">{{ task.title }}</span>
+        <span :class="{ 'line-through': task.is_done }" class="text-gray-600 text-sm break-all"
+          >{{ task.id }} {{ task.title }}</span
+        >
       </div>
       <div class="flex-initial">
         <div class="flex justify-end space-x-2">
@@ -41,7 +43,7 @@
               alt="Rounded avatar"
             />
           </span>
-          <SelectUsers ref="user" :taskId="task.id" />
+          <SelectUsers ref="user" :taskId="task.id" :index="index" @reloadImage="reloadImage" />
           <span
             :class="{ 'i-mdi-star-outline': !task.is_important, 'i-mdi-star text-yellow-500': task.is_important }"
             class="text-gray-400 hover:text-yellow-500"
@@ -58,12 +60,9 @@
 import { ref } from 'vue'
 import { vOnClickOutside } from '@vueuse/components'
 
-const { $listen } = useNuxtApp()
-
 const props = defineProps(['data'])
 const emit = defineEmits(['removeTask', 'markImportant', 'markDone', 'sortValue', 'selectUser'])
 
-const task = ref('')
 const user = ref([])
 const ignoreElRef = ref()
 
@@ -107,6 +106,12 @@ function onDrop(event, task) {
   emit('sortValue', [dragTask, dropTask])
 }
 
+function reloadImage(id, user) {
+  let index = props.data.findIndex((item) => item.id === id)
+  props.data[index].assignee.avatar = user.avatar
+  clear()
+}
+
 function selectUser(index) {
   clear()
 
@@ -120,10 +125,6 @@ function selectUser(index) {
     element.add('hidden')
   }
 }
-
-$listen('task:reload', () => {
-  clear()
-})
 
 const onClickOutsideHandler = [
   (ev) => {

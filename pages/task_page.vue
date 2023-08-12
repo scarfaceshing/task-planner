@@ -143,11 +143,6 @@ function selectUser(index) {
   console.log(index)
 }
 
-$listen('task:reload', async () => {
-  console.log('reload: task')
-  loadTaskList(`sortBy=sort`)
-})
-
 watch(
   search,
   debounce((param) => {

@@ -45,6 +45,7 @@ import { storeToRefs } from 'pinia'
 import debounce from 'lodash.debounce'
 
 const props = defineProps(['taskId'])
+const emit = defineEmits(['reloadImage'])
 
 const { $fetchUsers, $assignUser, $event } = useNuxtApp()
 
@@ -72,7 +73,7 @@ watch(
 
 function pickedUser(user) {
   $assignUser(props.taskId, user)
-  $event('task:reload')
+  emit('reloadImage', props.taskId, user)
 }
 
 onMounted(
