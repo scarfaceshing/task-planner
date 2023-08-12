@@ -5,7 +5,8 @@
     <div class="sticky top-0 w-full bg-white p-2">
       <div class="flex justify-start border rounded-md border-gray-200 h-8">
         <div class="flex-initial pointer-events-none text-gray-900 opacity-30 text-2xl mt-0.5 ml-1">
-          <span class="i-mdi-search text-gray-400"></span>
+          <span v-if="isLoading" class="i-mdi-dots-circle animate-spin"></span>
+          <span v-else class="i-mdi-search text-gray-400"></span>
         </div>
         <form class="w-full -ml-3">
           <input
@@ -19,12 +20,17 @@
     </div>
     <div class="pt-2">
       <ul>
-        <li v-for="item in users" :key="item" class="flex justify-start space-x-3 space-y-2 hover:bg-blue-200">
+        <li
+          v-for="user in users"
+          :key="user"
+          class="flex justify-start space-x-3 space-y-2 hover:bg-blue-200"
+          @click="pickedUser(user)"
+        >
           <div class="my-auto">
-            <img class="w-6 h-6 rounded-full" :src="item.avatar || '/image/noimage.png'" alt="Rounded avatar" />
+            <img class="w-6 h-6 rounded-full" :src="user.avatar || '/image/noimage.png'" alt="Rounded avatar" />
           </div>
           <div class="h-full pb-2">
-            <p class="self-start">{{ item.name }}</p>
+            <p class="self-start">{{ user.name }}</p>
           </div>
         </li>
       </ul>
@@ -36,27 +42,44 @@
 import { watch } from 'vue'
 import { useUsersStore } from '~/store/users'
 import { storeToRefs } from 'pinia'
-const { $fetchUsers } = useNuxtApp()
+import debounce from 'lodash.debounce'
+
+const props = defineProps(['taskId'])
+
+const { $fetchUsers, $assignUser, $event } = useNuxtApp()
 
 const usersStore = useUsersStore()
 const { stateUsersStore } = storeToRefs(usersStore)
 
 const users = ref({})
 const search = ref('')
+const isLoading = ref(false)
 
-async function loadTaskList() {
+async function loadUsers() {
   await $fetchUsers()
   users.value = stateUsersStore.value
 }
 
-watch(search, async (value) => {
-  response = await $fetchUsers(`?search=${value}`)
-  users.value = stateUsersStore.value
-})
+watch(
+  search,
+  debounce(async (value) => {
+    isLoading.value = true
+    await $fetchUsers(`?search=${value}`)
+    users.value = stateUsersStore.value
+    isLoading.value = false
+  }, 500)
+)
 
-onMounted(() => {
-  loadTaskList()
-})
+function pickedUser(user) {
+  $assignUser(props.taskId, user)
+  $event('task:reload')
+}
+
+onMounted(
+  debounce(() => {
+    loadUsers()
+  }, 500)
+)
 </script>
 
 <style></style>

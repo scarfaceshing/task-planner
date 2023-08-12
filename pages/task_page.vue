@@ -56,11 +56,15 @@
 const HTTP_STATUS_CREATED = 201
 
 import { ref, watch } from 'vue'
-import { useTasksStore } from '~/store/tasks'
 import { storeToRefs } from 'pinia'
+import debounce from 'lodash.debounce'
 
-const { $fetchTasks, $createTask, $removeTask, $updateTask, $searchTask } = useNuxtApp()
+import { useTasksStore } from '~/store/tasks'
+
+const { $fetchTasks, $createTask, $removeTask, $updateTask, $listen } = useNuxtApp()
+
 const tasksStore = useTasksStore()
+
 const { stateTasksStore } = storeToRefs(tasksStore)
 
 const tasksList = ref({})
@@ -68,9 +72,11 @@ const isSubmitting = ref(false)
 const filterButton = ref('ALL')
 const search = ref('')
 
-onMounted(() => {
-  loadTaskList()
-})
+onMounted(
+  debounce(() => {
+    loadTaskList()
+  }, 500)
+)
 
 async function filter(value) {
   if (value === 'ALL') {
@@ -137,12 +143,20 @@ function selectUser(index) {
   console.log(index)
 }
 
-watch(search, async (param) => {
-  const is_important = filterButton.value == 'IMPORTANT' ? '&is_important=true' : ''
-  const is_done = filterButton.value == 'DONE' ? '&is_done=true' : ''
-
-  loadTaskList(`sortBy=sort${is_important}${is_done}&search=${param}`)
+$listen('task:reload', async () => {
+  console.log('reload: task')
+  loadTaskList(`sortBy=sort`)
 })
+
+watch(
+  search,
+  debounce((param) => {
+    const is_important = filterButton.value == 'IMPORTANT' ? '&is_important=true' : ''
+    const is_done = filterButton.value == 'DONE' ? '&is_done=true' : ''
+
+    loadTaskList(`sortBy=sort${is_important}${is_done}&search=${param}`)
+  }, 500)
+)
 </script>
 
 <style></style>

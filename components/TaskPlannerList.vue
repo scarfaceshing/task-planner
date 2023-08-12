@@ -41,7 +41,7 @@
               alt="Rounded avatar"
             />
           </span>
-          <SelectUsers ref="user" />
+          <SelectUsers ref="user" :taskId="task.id" />
           <span
             :class="{ 'i-mdi-star-outline': !task.is_important, 'i-mdi-star text-yellow-500': task.is_important }"
             class="text-gray-400 hover:text-yellow-500"
@@ -57,6 +57,9 @@
 <script setup>
 import { ref } from 'vue'
 import { vOnClickOutside } from '@vueuse/components'
+
+const { $listen } = useNuxtApp()
+
 const props = defineProps(['data'])
 const emit = defineEmits(['removeTask', 'markImportant', 'markDone', 'sortValue', 'selectUser'])
 
@@ -81,11 +84,7 @@ function handleRemove(id) {
   emit('removeTask', id)
 }
 
-function startDrag(event, task) {
-  event.dataTransfer.dropEffect = 'move'
-  event.dataTransfer.effectAllowed = 'move'
-  dragTask = task
-
+function clear() {
   let element = user.value
 
   element.map((i) => {
@@ -93,6 +92,14 @@ function startDrag(event, task) {
       i.$el.classList.add('hidden')
     }
   })
+}
+
+function startDrag(event, task) {
+  event.dataTransfer.dropEffect = 'move'
+  event.dataTransfer.effectAllowed = 'move'
+  dragTask = task
+
+  clear()
 }
 
 function onDrop(event, task) {
@@ -101,15 +108,9 @@ function onDrop(event, task) {
 }
 
 function selectUser(index) {
-  let element = user.value
+  clear()
 
-  element.map((i) => {
-    if (i.$el.classList.contains('inline')) {
-      i.$el.classList.add('hidden')
-    }
-  })
-
-  element = element[index].$el.classList
+  let element = user.value[index].$el.classList
 
   if (element.contains('hidden')) {
     element.remove('hidden')
@@ -118,19 +119,15 @@ function selectUser(index) {
     element.remove('inline')
     element.add('hidden')
   }
-
-  console.log(index)
 }
+
+$listen('task:reload', () => {
+  clear()
+})
 
 const onClickOutsideHandler = [
   (ev) => {
-    let element = user.value
-
-    element.map((i) => {
-      if (i.$el.classList.contains('inline')) {
-        i.$el.classList.add('hidden')
-      }
-    })
+    clear()
   },
   { ignore: [ignoreElRef] }
 ]

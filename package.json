@@ -29,6 +29,8 @@
     "@vueuse/components": "^10.3.0",
     "@vueuse/core": "^10.3.0",
     "axios": "^1.4.0",
+    "lodash.debounce": "^4.0.8",
+    "mitt": "^3.0.1",
     "pinia": "^2.1.6"
   }
 }

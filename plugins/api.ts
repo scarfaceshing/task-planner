@@ -43,6 +43,12 @@ export default defineNuxtPlugin((nuxtApp) => {
     return response
   }
 
+  const assignUser = async (taskId: number, user: any) => {
+    const response = await axios.put(`${API_URL}/tasks/${taskId}`, { assignee: user })
+    return response
+  }
+
+  nuxtApp.provide('assignUser', (taskId: number, user: any) => assignUser(taskId, user))
   nuxtApp.provide('fetchUsers', (param: string) => fetchUsers(param))
   nuxtApp.provide('fetchTasks', (param: string) => fetchTasks(param))
   nuxtApp.provide('updateTask', (task: any) => updateTask(task))
