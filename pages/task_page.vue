@@ -36,7 +36,14 @@
         <div class="flex">
           <TaskPlannerSearchInput v-model="search" />
         </div>
-        <TaskPlannerList :data="tasksList" @removeTask="onRemove" @markImportant="markImportant" @markDone="markDone" />
+        <TaskPlannerList
+          :data="tasksList"
+          @removeTask="onRemove"
+          @markImportant="markImportant"
+          @markDone="markDone"
+          @sortValue="sortValue"
+          @selectUser="selectUser"
+        />
       </div>
       <div class="sticky bottom-0 w-full space-y-5 align-bottom bg-slate-50 mt-10">
         <TaskPlannerInput @submit="submit" :loading="isSubmitting" />
@@ -48,11 +55,11 @@
 <script setup>
 const HTTP_STATUS_CREATED = 201
 
-import { ref } from 'vue'
+import { ref, watch } from 'vue'
 import { useTasksStore } from '~/store/tasks'
 import { storeToRefs } from 'pinia'
 
-const { $fetchTasks, $createTask, $removeTask, $updateTask } = useNuxtApp()
+const { $fetchTasks, $createTask, $removeTask, $updateTask, $searchTask } = useNuxtApp()
 const tasksStore = useTasksStore()
 const { stateTasksStore } = storeToRefs(tasksStore)
 
@@ -67,11 +74,11 @@ onMounted(() => {
 
 async function filter(value) {
   if (value === 'ALL') {
-    loadTaskList()
+    loadTaskList(`sortBy=sort&search=${search.value}`)
   } else if (value === 'IMPORTANT') {
-    loadTaskList('?is_important=true')
+    loadTaskList(`is_important=true&orderBy=sort&search=${search.value}`)
   } else if (value === 'DONE') {
-    loadTaskList('?is_done=true')
+    loadTaskList(`is_done=true&orderBy=sort&search=${search.value}`)
   }
 
   filterButton.value = value
@@ -83,6 +90,7 @@ async function loadTaskList(param) {
 }
 
 async function submit(value) {
+  console.log(value)
   isSubmitting.value = true
   const response = await $createTask(value)
 
@@ -106,6 +114,35 @@ async function markImportant(task) {
 async function markDone(task) {
   await $updateTask(task)
 }
+
+async function sortValue(data) {
+  const dragItem = {
+    id: data[1].id,
+    sort: data[0].sort
+  }
+
+  await $updateTask(dragItem)
+
+  const dropItem = {
+    id: data[0].id,
+    sort: data[1].sort
+  }
+
+  await $updateTask(dropItem)
+
+  filter(filterButton.value)
+}
+
+function selectUser(task) {
+  console.log(task)
+}
+
+watch(search, async (param) => {
+  const is_important = filterButton.value == 'IMPORTANT' ? '&is_important=true' : ''
+  const is_done = filterButton.value == 'DONE' ? '&is_done=true' : ''
+
+  loadTaskList(`sortBy=sort${is_important}${is_done}&search=${param}`)
+})
 </script>
 
 <style></style>

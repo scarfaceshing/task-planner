@@ -1,10 +1,11 @@
 <template>
-  <div class="space-y-5" @drop="onDrop($event, 1)" @dragenter.prevent @dragover.prevent>
+  <div class="space-y-5" @dragenter.prevent @dragover.prevent>
     <div
       class="bg-white h-100 w-full p-3 pl-4 shadow-gray-500/25 shadow-md rounded-sm flex justify-start space-x-3"
       v-for="(task, index) in data"
       draggable="true"
       @dragstart="startDrag($event, task)"
+      @drop="onDrop($event, task)"
       :key="index"
     >
       <div class="flex-initial">
@@ -27,6 +28,14 @@
       </div>
       <div class="flex-initial">
         <div class="flex justify-end space-x-2">
+          <span @click="selectUser(task)">
+            <img
+              v-if="task.assignee.avatar"
+              class="w-4 h-4 rounded-full"
+              :src="task.assignee.avatar"
+              alt="Rounded avatar"
+            />
+          </span>
           <span
             :class="{ 'i-mdi-star-outline': !task.is_important, 'i-mdi-star text-yellow-500': task.is_important }"
             class="text-gray-400 hover:text-yellow-500"
@@ -42,9 +51,11 @@
 <script setup>
 import { ref } from 'vue'
 const props = defineProps(['data'])
-const emit = defineEmits(['removeTask', 'markImportant', 'markDone'])
+const emit = defineEmits(['removeTask', 'markImportant', 'markDone', 'sortValue', 'selectUser'])
 
 const task = ref('')
+let dragTask = {}
+let dropTask = {}
 
 function markDone(task) {
   task.is_done = !task.is_done
@@ -63,13 +74,16 @@ function handleRemove(id) {
 function startDrag(event, task) {
   event.dataTransfer.dropEffect = 'move'
   event.dataTransfer.effectAllowed = 'move'
-  event.dataTransfer.setData('taskID', task.id)
+  dragTask = task
 }
 
-function onDrop(event, list) {
-  const taskId = event.dataTransfer.getData('taskID')
-  const item = props.data.find((item) => item.id == taskId)
-  console.log(item)
+function onDrop(event, task) {
+  dropTask = task
+  emit('sortValue', [dragTask, dropTask])
+}
+
+function selectUser(task) {
+  emit('selectUser', task)
 }
 </script>
 

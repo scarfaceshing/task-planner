@@ -7,8 +7,8 @@ export default defineNuxtPlugin((nuxtApp) => {
   const tasksStore = useTasksStore()
   const { loadTasks } = tasksStore
 
-  const fetchTasks = async (param: string = '?sortBy=sort') => {
-    const response = await axios.get(`${API_URL}/tasks${param}`)
+  const fetchTasks = async (param: string = 'sortBy=sort') => {
+    const response = await axios.get(`${API_URL}/tasks?${param}`)
     loadTasks(response.data)
     return response
   }
@@ -16,11 +16,8 @@ export default defineNuxtPlugin((nuxtApp) => {
   const createTask = async (task: string) => {
     const response = await axios.post(`${API_URL}/tasks`, {
       title: task,
-      created_at: Date().toString(),
       is_done: false,
-      is_important: false,
-      sort: 1,
-      id: Math.floor(Math.random() * 10000)
+      is_important: false
     })
 
     return response
