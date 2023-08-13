@@ -1,14 +1,19 @@
 <template>
   <div>
     <header>
-      <div class="px-10 h-38 pb-4 pt-4 bg-white flex justify-between drop-shadow-sm">
-        <div class="flex space-x-14">
-          <img src="/image/goteam-logo.png" class="h-10 my-auto" />
-          <a href="" class="my-auto text-center text-gray-500 hover:underline">Careers</a>
-          <a href="" class="my-auto text-center text-gray-500 hover:underline">Find your role</a>
+      <div class="px-10 h-38 pb-4 pt-4 bg-white grid grid-cols-3 justify-between drop-shadow-sm">
+        <div class="flex">
+          <img src="/image/goteam-logo.png" class="h-10" />
+          <div class="max-[1120px]:mx-auto">
+            <div class="text-2xl my-auto min-[1120px]:hidden"><span class="i-mdi-chevron-down"></span></div>
+          </div>
+          <div class="flex space-x-7 max-[1120px]:hidden mr-auto ml-14 max-[1337px]:mx-auto">
+            <a href="" class="my-auto text-center text-gray-500 hover:underline">Careers</a>
+            <a href="" class="my-auto text-center text-gray-500 hover:underline">Find your role</a>
+          </div>
         </div>
         <div>
-          <form class="w-96">
+          <form class="w-full">
             <label for="default-search" class="mb-2 text-sm font-medium text-gray-900 sr-only">Search</label>
             <div class="relative">
               <input

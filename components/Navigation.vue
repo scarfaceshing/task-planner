@@ -4,10 +4,10 @@
       <li
         v-for="menu in props.menus_a"
         :key="menu"
-        class="flex justify-between py-2 px-3 rounded-md py-2 px-3 rounded-md"
+        class="flex justify-between py-2 px-3 rounded-md rounded-md"
         :class="{ 'bg-slate-200/50 text-blue-500': menu.isSelected }"
       >
-        <div class="flex space-x-5">
+        <div class="flex space-x-5 text-sm">
           <span v-if="menu.isSelected" :class="menu.icon" class="mt-1 text-2xl"></span>
           <span v-else :class="menu.icon" class="mt-1 text-2xl text-gray-400"></span>
           <p class="my-auto">{{ menu.title }}</p>
@@ -22,7 +22,7 @@
       <li
         v-for="menu in props.menus_b"
         :key="menu"
-        class="flex justify-between py-2 px-3 rounded-md py-2 px-3 rounded-md"
+        class="flex justify-between py-2 px-3 rounded-md py-2 px-3 rounded-md text-sm"
         :class="{ 'bg-slate-200/50 text-blue-500': menu.isSelected }"
       >
         <div class="flex space-x-5">
@@ -38,7 +38,7 @@
         </template>
       </li>
     </ul>
-    <div class="mt-2">
+    <div class="mt-2 text-sm">
       <div class="text-sm text-gray-400">Copyright 2018 - 2023. All Rights Reserved</div>
       <div class="text-blue-700 text-sm">
         <a class="hover:underline">Terms of Use</a> &nbsp;<a class="hover:underline">Privacy Policy</a>
